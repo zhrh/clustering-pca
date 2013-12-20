@@ -1,0 +1,13 @@
+用途:
+dictionary.cpp 用来提取中心
+pca_transform.cpp 用来生成pca matrix 和 pca mean 
+
+
+用法:
+argv[1] 特征存放路径
+argv[2] 中心和PCA矩阵的存放路径
+eg:
+./predata /home/zrh/Holidaysdataset/results/VLAD/siftgeo ./result/clust_sift_k64.fvecs
+./predata ./data/SIFT_vlad_holidays.fvecs ./result/pca_vlad_2.fvecs
+
+pca和提取中心示例如main.cpp所示
