@@ -7,5 +7,6 @@ extern const int kSurfDescriptorDim;
 extern const int kMaxSurfDescriptorNUM;
 extern const int kSiftDescriptorDim;
 extern const int kMaxSiftgeoNum;
+extern const int kMaxFileNum;
 
 #endif

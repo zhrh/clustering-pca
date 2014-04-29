@@ -15,6 +15,7 @@ class PCATransform
 public:
 	static bool Create(const char *dir,int dim,int points,float *&pca_mean,float *&pca_proj);
 	static bool Save(const char *fname,const int d,const float *pca_mean,const float *pca_proj);
+	static bool CreateFromFvecs(const char *fname,int dim,int points,float *&pca_mean,float *&pca_proj);
 
 	// PCATransform(int fnum);		// 初始化const 或引用类型数据成员的唯一机会在构造函数初始化列表
 	static bool CreateOnline(const char *dir,int dim,int points,float *&pca_mean,float *&pca_proj);

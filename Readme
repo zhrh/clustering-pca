@@ -9,5 +9,22 @@ argv[2] 中心和PCA矩阵的存放路径
 eg:
 ./predata /home/zrh/Holidaysdataset/results/VLAD/siftgeo ./result/clust_sift_k64.fvecs
 ./predata ./data/SIFT_vlad_holidays.fvecs ./result/pca_vlad_2.fvecs
-
+提取图片pca
+./predata /media/image_features/image1_vlad ./result/pca_surfvlad_k64_pn_image.fvecs
+./predata /media/gxg_disk/zhourenhao/crawl_300k_surf/vlad_fea ./result/pca_surfvlad_k64_crawl300k_image.fvecs
+./predata /media/video_features/video6_vlad ./result/pca_surfvlad_k64_video6_video.fvecs
+./predata /media/gxg_disk/zhourenhao/image_dataset/flickr60k/SIFT_spvlad_flickr60k_k64_2.fvecs ./result/pca_spvlad_flick60k_k64_2.fvecs
 pca和提取中心示例如main.cpp所示
+
+注:
+(1) pca_surfvlad_k64_pn_image是在image1盘中随机选10万幅图片,且经过power-normalization处理, 生成pca的矩阵
+(2) pca_surfvlad_k64_crawl300k_image.fvecs是在crawl300k随机选择20万图片生成的.
+(3) pca_surfvlad_k64_video6_video.fvecs是在video6_vlad中随机选则3000个视频,并在其中随机选80帧
+
+
+更新记录:
+2014年4月20日
+1. 加入vlad, siftgeo等特征的处理
+2. 加入RootOperate, FvecsNormalize2等函数
+3. 加入CreateFromFvecs从vlad特征构建pca矩阵的方法
+

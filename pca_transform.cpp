@@ -7,6 +7,7 @@
 #include<unistd.h>
 #include<algorithm>
 #include"dictionary.h"
+#include"global.h"
 
 
 bool PCATransform::Create(const char *dir,int dim,int points,float *&pca_mean,float *&pca_proj)
@@ -31,6 +32,12 @@ bool PCATransform::Create(const char *dir,int dim,int points,float *&pca_mean,fl
 	printf("%d featurs file find\n",filepath.size());
 	printf("randomizing image list...\n");
 	random_shuffle(filepath.begin(),filepath.end());
+	if(filepath.size() > kMaxFileNum)
+	{
+		printf("Reach the max file number...\n");
+		filepath.erase(filepath.begin() + kMaxFileNum, filepath.end());
+		printf("The file number change to: %d\n",filepath.size());
+	}
 	gettimeofday(&end,NULL);
 	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
 	printf("elapsed: %d ms\n",time_used);
@@ -65,6 +72,33 @@ bool PCATransform::Create(const char *dir,int dim,int points,float *&pca_mean,fl
 
 }
 
+bool PCATransform::CreateFromFvecs(const char *fname,int dim,int points,float *&pca_mean,float *&pca_proj)
+{
+	struct timeval start,end;
+	int time_used;
+	printf("Read fvecs of points...\n");
+	gettimeofday(&start,NULL);
+	float *subset_desc = new float[dim * points]();
+	int subset_num;
+	//printf("dim = %d, points = %d\n",dim ,points);
+	subset_num = fvecs_read(fname, dim, points, subset_desc);
+	printf("%d's points random choosed\n",subset_num);
+	gettimeofday(&end,NULL);
+	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
+	printf("elapsed: %d ms\n",time_used);
+
+	printf("calculating pca matrix...\n");
+	gettimeofday(&start,NULL);
+	pca_mean = new float[dim]();
+	pca_proj = new float[dim * dim]();
+	PerformPCA(dim,subset_desc,subset_num,pca_mean,pca_proj);
+	gettimeofday(&end,NULL);
+	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
+	printf("elapsed: %d ms\n",time_used);
+	delete []subset_desc;
+	//free(subset_desc);	// for test
+	return true;
+}
 
 void PCATransform::PerformPCA(int dim,const float *desc,int desc_num,float *pca_mean,float *pca_proj)
 {
@@ -78,10 +112,21 @@ void PCATransform::PerformPCA(int dim,const float *desc,int desc_num,float *pca_
 	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
 	printf("\telapsed: %d ms\n",time_used);
 
-	float *evals = NULL;
+	float *evals = new float[dim]();
 	printf("\tcalculating eigenvectors...\n");
 	gettimeofday(&start,NULL);
 	float *pcamat = fmat_new_pca_from_covariance(dim,cov,evals);
+
+	// add by zrh140411
+	FILE *fid = fopen("./result/singlevals.fvec","wb");
+	if(fid == NULL)
+	{
+		fprintf(stderr, "can't open the file singlevals.fvec\n");
+		return;
+	}
+	fvec_fwrite(fid,evals,dim);
+	fclose(fid);
+
 	//for(int i = 0;i != dim;++i)
 	//	for(int j = 0;j != dim;++j)
 	//		pca_proj[i * dim + j] = pcamat[i * dim + j];

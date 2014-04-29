@@ -10,7 +10,11 @@ const int kSurfDescriptorDim = 64;
 const int kMaxSurfDescriptorNUM = 5000;
 const int kVisualWordsNum = 100000;
 const int kSiftDescriptorDim = 128;
+const int kMaxFileNum = 3000;
 //const int kMaxSiftgeoNum = 10000000;
+
+// /media/gxg_disk/zhourenhao/crawl_300k_surf/gpusurf_fea 
+// ./result/clust_surf_k64_image.fvecs
 
 int main(int argc, char **argv)
 {
@@ -18,22 +22,24 @@ int main(int argc, char **argv)
 	{
 		printf("Para Error!\n");
         // 1:features path or dictionary path, 2:centroids path
-		printf("Use: 1.features/dictionary path 2.centroids path\n"); 
+		printf("Dictionary Use: 1.features/dictionary path 2.centroids path\n"); 
+		printf("PCA Transform Use: 1.features dir 2. pca matrix path\n"); 
 		return -1;
 	}
 	srand( (unsigned)time(NULL) );
-	int points = 300;
-	//float *centroids;
-	//if(Dictionary::Create(argv[1],kCentroidsNum,kSiftDescriptorDim,points,centroids))
-	//{
-	//	Dictionary::Save(argv[2],kSiftDescriptorDim,kCentroidsNum,centroids);
-	//	delete []centroids;
-	//}
+	int points = 10000;
+//	float *centroids;
+//	if(Dictionary::Create(argv[1],kCentroidsNum,kSurfDescriptorDim,points,centroids))
+//	{
+//		Dictionary::Save(argv[2],kSurfDescriptorDim,kCentroidsNum,centroids);
+//		delete []centroids;
+//	}
 
 	float *pca_mean,*pca_proj;
-	if(PCATransform::Create(argv[1],kSiftDescriptorDim * kCentroidsNum,points,pca_mean,pca_proj))
+	//if(PCATransform::Create(argv[1],kSurfDescriptorDim * kCentroidsNum,points,pca_mean,pca_proj))
+	if(PCATransform::CreateFromFvecs(argv[1],5 * kSiftDescriptorDim * kCentroidsNum, points, pca_mean, pca_proj))
 	{
-		PCATransform::Save(argv[2],kSiftDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
+		PCATransform::Save(argv[2],5 * kSiftDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
 		delete []pca_mean;
 		delete []pca_proj;
 	}

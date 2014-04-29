@@ -70,7 +70,7 @@ bool Dictionary::Create(const char *dir,int clusters,int dim,int points,float *&
 	printf("creating centroids...\n");
 	gettimeofday(&start,NULL);
 	int niter = 100;
-	int redo = 5;
+	int redo = 3;
 	centroids = new float[clusters * dim]();
 	if(!PerformClustering(dim,clusters,niter,redo,subset_desc,subset_num,centroids))
 	{
@@ -91,14 +91,23 @@ bool Dictionary::Create(const char *dir,int clusters,int dim,int points,float *&
 bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int dim,int points,float *&subset,int &subset_num)
 {
 	float *subf= new float[filepath.size() * points * dim](); 	
+	//float *subf= new float[filepath.size() * dim]();	// just for image vlad, because vlad file have only one features, zrh0222
+	if(subf == NULL)
+	{
+		fprintf(stderr, "Apply memory failed!\n");
+		return false;
+	}
 	//float *subf= new float[filepath.size() * kMaxSurfDescriptorNUM * dim](); 	
 	int subp = 0;
 	float *desc;
 	int desc_num = 0;
+	int *frameid = NULL;
 	for(std::vector<std::string>::const_iterator iter = filepath.begin();iter != filepath.end();++iter)
 	{
 		//if(!LoadSurfDescriptor((*iter).c_str(),desc,desc_num))
-		if(!LoadSiftgeo((*iter).c_str(),desc,desc_num))
+		//if(!LoadSiftgeo((*iter).c_str(),desc,desc_num))
+		//if(LoadSurfBin((*iter).c_str(),&desc_num,&desc) < 0)
+		if(LoadVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
 		{
 			printf("Can't load surf descriptor from %s\n",(*iter).c_str());
 			delete []subset;
@@ -106,18 +115,21 @@ bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int di
 		}
 		if(desc_num == 0)
 			continue;
+		//RootOperate(desc,desc_num,kSurfDescriptorDim);
 
 		float *temp = subf + subp *dim;
 		ExtractRandomPoints(dim,points,desc,desc_num,temp);
 		//ExtractRandomPoints(dim,desc_num,desc,desc_num,temp);
 		subp += desc_num;
 		// delete []desc;
-		free(desc);		// for siftgeo
+		free(desc);
 	}
 	subset = subf;
 	subset_num = subp;
 	return true;
 }
+
+
 
 void Dictionary::ExtractRandomPoints(int dim,int points,const float *src,int &desc_num,float *dst)
 {
@@ -165,7 +177,7 @@ bool Dictionary::ReadSurfPath(const char *surfdir,std::vector<std::string> &file
 	DIR *dir;
 	struct dirent *file; 	//readdir函数的返回值就存放在这个结构体中
 	struct stat st;
-
+	static int filenum = 0;
 	if(!(dir = opendir(surfdir)))
 	{
 		printf("error opendir %s!!!\n",surfdir);
@@ -185,15 +197,18 @@ bool Dictionary::ReadSurfPath(const char *surfdir,std::vector<std::string> &file
 			ReadSurfPath(tmp_path,filepath);	// 子目录继续递归
 		}
 		else
-		{
-			char *sub = strrchr(tmp_path,'.');
-			//char surfix[10];
-			//memset(surfix,0,10);
-        	//strncpy(surfix,sub + 1, strlen(sub) - 1);
-			if (!strcmp(sub + 1,"surf") || !strcmp(sub + 1,"siftgeo")) // for test sift features
+		{	++filenum;
+			//if(filenum % 40 == 0)
 			{
-				std::string path(tmp_path);
-				filepath.push_back(path);
+				char *sub = strrchr(tmp_path,'.');
+				//char surfix[10];
+				//memset(surfix,0,10);
+				//strncpy(surfix,sub + 1, strlen(sub) - 1);
+				if (!strcmp(sub + 1,"surf") || !strcmp(sub + 1,"siftgeo") || !strcmp(sub + 1,"vlad") ) // for test sift features
+				{
+					std::string path(tmp_path);
+					filepath.push_back(path);
+				}
 			}
 		}
 	}
