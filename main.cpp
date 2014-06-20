@@ -3,10 +3,12 @@
 #include <time.h>
 #include "dictionary.h"
 #include "global.h"
+#include "pca_rotation.h"
 #include "pca_transform.h"
 
 const int kCentroidsNum = 64;
 const int kSurfDescriptorDim = 64;
+const int kPcaVladDim = 256;
 const int kMaxSurfDescriptorNUM = 5000;
 const int kVisualWordsNum = 100000;
 const int kSiftDescriptorDim = 128;
@@ -24,25 +26,48 @@ int main(int argc, char **argv)
         // 1:features path or dictionary path, 2:centroids path
 		printf("Dictionary Use: 1.features/dictionary path 2.centroids path\n"); 
 		printf("PCA Transform Use: 1.features dir 2. pca matrix path\n"); 
+		printf("PCA Rotation Use: 1.features dir 2. pca rotation matrix path\n"); 
 		return -1;
 	}
 	srand( (unsigned)time(NULL) );
-	int points = 10000;
+	int points = 100000;
+	// 1. centroids
 //	float *centroids;
 //	if(Dictionary::Create(argv[1],kCentroidsNum,kSurfDescriptorDim,points,centroids))
 //	{
 //		Dictionary::Save(argv[2],kSurfDescriptorDim,kCentroidsNum,centroids);
 //		delete []centroids;
 //	}
-
-	float *pca_mean,*pca_proj;
-	//if(PCATransform::Create(argv[1],kSurfDescriptorDim * kCentroidsNum,points,pca_mean,pca_proj))
-	if(PCATransform::CreateFromFvecs(argv[1],5 * kSiftDescriptorDim * kCentroidsNum, points, pca_mean, pca_proj))
+	
+	// 2. pca matrix
+//	float *pca_mean,*pca_proj;
+//	//if(PCATransform::Create(argv[1],kSurfDescriptorDim * kCentroidsNum,points,pca_mean,pca_proj))
+//	if(PCATransform::CreateFromFvecs(argv[1],5 * kSiftDescriptorDim * kCentroidsNum, points, pca_mean, pca_proj))
+//	{
+//		PCATransform::Save(argv[2],5 * kSiftDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
+//		delete []pca_mean;
+//		delete []pca_proj;
+//	}
+	
+	// 3. pca rotation
+	int niter = 10;
+	float *rotation;
+	if(PCARotation::CreatePCARotation(argv[1], kPcaVladDim, points, niter, rotation))
 	{
-		PCATransform::Save(argv[2],5 * kSiftDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
-		delete []pca_mean;
-		delete []pca_proj;
+		PCARotation::SavePCARotation(argv[2], kPcaVladDim, rotation);
+		free(rotation);
 	}
+
+//	float a[6] = {1, 2, 3, 4, 5, 6};
+//	int col[2] = {0, 2};
+//	float b[4];
+//	fmat_get_columns(a, 2, 2, col, b);
+//	for(int i = 0; i != 4; i++)
+//		printf("%f\n", b[i]);
+//	cv::Mat m(3, 2, CV_32FC1, a);
+//	for(int i = 0; i != 3; ++i)
+//		for(int j = 0; j != 2; j++)
+//		printf("%f\n",m.at<float>(i,j));
 
 	//Dictionary::CreateFromDic(argv[1],argv[2]);
 	return 0;

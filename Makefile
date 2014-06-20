@@ -1,9 +1,9 @@
 cplus = g++	-fopenmp
 cc = gcc -fopenmp
-CFLAGS = -g -fPIC -I . -I ./libvl -I ./yael
+CFLAGS = -g -fPIC `pkg-config --cflags opencv` -I . -I ./libvl -I ./yael
 LDFLAGS = -lblas
-EXTRALIBS = -L./yael -lyael -L./libvl -lvl 
-objects+=dictionary.o utils.o pca_transform.o
+EXTRALIBS = `pkg-config --libs opencv` -L./yael -lyael -L./libvl -lvl 
+objects+=dictionary.o utils.o pca_transform.o pca_rotation.o
 main_obj+=main.o 
 
 all:libpredata.so predata

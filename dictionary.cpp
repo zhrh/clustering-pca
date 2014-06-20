@@ -101,13 +101,14 @@ bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int di
 	int subp = 0;
 	float *desc;
 	int desc_num = 0;
-	int *frameid = NULL;
+	unsigned int *frameid = NULL;
 	for(std::vector<std::string>::const_iterator iter = filepath.begin();iter != filepath.end();++iter)
 	{
 		//if(!LoadSurfDescriptor((*iter).c_str(),desc,desc_num))
 		//if(!LoadSiftgeo((*iter).c_str(),desc,desc_num))
 		//if(LoadSurfBin((*iter).c_str(),&desc_num,&desc) < 0)
-		if(LoadVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
+		//if(LoadVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
+		if(LoadBatchPcaVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
 		{
 			printf("Can't load surf descriptor from %s\n",(*iter).c_str());
 			delete []subset;
@@ -123,6 +124,7 @@ bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int di
 		subp += desc_num;
 		// delete []desc;
 		free(desc);
+		free(frameid); // for BatchPcavlad
 	}
 	subset = subf;
 	subset_num = subp;

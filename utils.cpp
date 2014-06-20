@@ -159,6 +159,60 @@ int LoadVlad(const char *filename,int &kfNum,float *&features,int *&frameid_out)
 	return 0;
 }
 
+bool LoadBatchPcaVlad(const char *filename, int &filenum_out, float *&features_out, unsigned int *&fileid_out)
+{
+	FILE* fin = fopen(filename,"rb");
+	if(fin == NULL)
+	{
+		printf("Can't Open file %s\n",filename);
+		return false;
+	}
+	float version = 0.0;
+	int featype = 0, dim = 0, filenum = 0;
+	fread(&version,sizeof(float),1,fin);
+	fread(&featype,sizeof(int),1,fin);
+	fread(&dim,sizeof(int),1,fin);
+	if(featype != 11 || dim != kPcaVladDim)
+	{
+		printf("This File is't pcavlad features file or the dim is't right!\n");
+		fclose(fin);
+		return false;
+	}
+	int count = fread(&filenum,sizeof(int),1,fin);
+	if (count != 1 || filenum == 0)
+	{
+		printf("Read smpfile %s error:count = %d, filenum = %d\n",filename,count,filenum);
+		fclose(fin);
+		return false;
+	}
+	unsigned int *fileid = (unsigned int *)calloc(filenum, sizeof(unsigned int));
+	float *features = (float *)calloc(filenum * dim, sizeof(float));
+	if (features == NULL ||  fileid == NULL)
+	{
+		printf("failed to allocate memory for feature\n");
+		fclose(fin);
+		return false;
+	}
+	for(int i = 0; i != filenum; ++i)
+	{
+		fread(fileid + i, sizeof(unsigned int), 1, fin);
+		count = fread(features + i * dim, sizeof(float), dim ,fin);
+		if(count != dim)
+		{
+			printf("Read smpfile %s length error:count = %d, filenum = %d\n",filename,count,filenum);
+			free(features);
+			free(fileid);
+			fclose(fin);
+			return false;
+		}
+	}
+	fclose(fin);
+	filenum_out = filenum;
+	features_out = features;
+	fileid_out = fileid;
+	return true;
+}
+
 bool LoadSiftgeo(const char *filename,float *&descriptor,int &descriptor_num)
 {
 	unsigned char *siftgeo;

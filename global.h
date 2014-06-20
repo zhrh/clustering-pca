@@ -4,6 +4,7 @@
 extern const int kCentroidsNum;
 extern const int kVisualWordsNum;
 extern const int kSurfDescriptorDim;
+extern const int kPcaVladDim;
 extern const int kMaxSurfDescriptorNUM;
 extern const int kSiftDescriptorDim;
 extern const int kMaxSiftgeoNum;

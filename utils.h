@@ -6,6 +6,8 @@ extern bool LoadSurfDescriptor(const char *filename,float *&descriptor,int &desc
 extern bool LoadSiftgeo(const char *filename,float *&descriptor,int &descriptor_num);
 
 extern int LoadVlad(const char *filename,int &kfNum,float *&features,int *&frameid_out);
+// 每个文件都包括多个图片的pcavlad特征
+bool LoadBatchPcaVlad(const char *filename, int &filenum_out, float *&features_out, unsigned int *&fileid_out);
 
 extern void RootOperate(float *features, int n, int d);
 

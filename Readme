@@ -1,7 +1,7 @@
 用途:
 dictionary.cpp 用来提取中心
 pca_transform.cpp 用来生成pca matrix 和 pca mean 
-
+pca_rotation.cpp 用来生成roatation旋转矩阵,在生成二进制特征之前对用PCA降维之后的特征进行旋转.
 
 用法:
 argv[1] 特征存放路径
@@ -15,16 +15,26 @@ eg:
 ./predata /media/video_features/video6_vlad ./result/pca_surfvlad_k64_video6_video.fvecs
 ./predata /media/gxg_disk/zhourenhao/image_dataset/flickr60k/SIFT_spvlad_flickr60k_k64_2.fvecs ./result/pca_spvlad_flick60k_k64_2.fvecs
 pca和提取中心示例如main.cpp所示
+提取二进制旋转矩阵
+./predata ./data/image_pcavlad ./result/pca_rotation_256_image.fvecs
 
 注:
 (1) pca_surfvlad_k64_pn_image是在image1盘中随机选10万幅图片,且经过power-normalization处理, 生成pca的矩阵
 (2) pca_surfvlad_k64_crawl300k_image.fvecs是在crawl300k随机选择20万图片生成的.
 (3) pca_surfvlad_k64_video6_video.fvecs是在video6_vlad中随机选则3000个视频,并在其中随机选80帧
 
+程序理解:
+1. yael库中matrix存放规则
+v(d,n)表示d*n的矩阵, 在一维数组v存储规则是每d维存一段,一共存n段
 
 更新记录:
 2014年4月20日
 1. 加入vlad, siftgeo等特征的处理
 2. 加入RootOperate, FvecsNormalize2等函数
 3. 加入CreateFromFvecs从vlad特征构建pca矩阵的方法
+
+2014年6月19日
+1. 加入文章Iterative Quantization: A Procrustean Approach to Learning Binary Codes for Large-scale Image Retrieval中ITQ方法
+此方法是在生成二进制特征之前对用PCA降维之后的特征进行旋转.
+
 
