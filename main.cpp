@@ -12,7 +12,7 @@ const int kPcaVladDim = 256;
 const int kMaxSurfDescriptorNUM = 5000;
 const int kVisualWordsNum = 100000;
 const int kSiftDescriptorDim = 128;
-const int kMaxFileNum = 3000;
+const int kMaxFileNum = 1000;
 //const int kMaxSiftgeoNum = 10000000;
 
 // /media/gxg_disk/zhourenhao/crawl_300k_surf/gpusurf_fea 
@@ -40,23 +40,23 @@ int main(int argc, char **argv)
 //	}
 	
 	// 2. pca matrix
-//	float *pca_mean,*pca_proj;
-//	//if(PCATransform::Create(argv[1],kSurfDescriptorDim * kCentroidsNum,points,pca_mean,pca_proj))
-//	if(PCATransform::CreateFromFvecs(argv[1],5 * kSiftDescriptorDim * kCentroidsNum, points, pca_mean, pca_proj))
-//	{
-//		PCATransform::Save(argv[2],5 * kSiftDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
-//		delete []pca_mean;
-//		delete []pca_proj;
-//	}
+	float *pca_mean,*pca_proj;
+	if(PCATransform::CreateFromVlad(argv[1],kSurfDescriptorDim * kCentroidsNum,pca_mean,pca_proj))
+	//if(PCATransform::CreateFromFvecs(argv[1],5 * kSiftDescriptorDim * kCentroidsNum, points, pca_mean, pca_proj))
+	{
+		PCATransform::Save(argv[2], kSurfDescriptorDim * kCentroidsNum,pca_mean,pca_proj);
+		delete []pca_mean;
+		delete []pca_proj;
+	}
 	
 	// 3. pca rotation
-	int niter = 10;
-	float *rotation;
-	if(PCARotation::CreatePCARotation(argv[1], kPcaVladDim, points, niter, rotation))
-	{
-		PCARotation::SavePCARotation(argv[2], kPcaVladDim, rotation);
-		free(rotation);
-	}
+//	int niter = 10;
+//	float *rotation;
+//	if(PCARotation::CreatePCARotation(argv[1], kPcaVladDim, points, niter, rotation))
+//	{
+//		PCARotation::SavePCARotation(argv[2], kPcaVladDim, rotation);
+//		free(rotation);
+//	}
 
 //	float a[6] = {1, 2, 3, 4, 5, 6};
 //	int col[2] = {0, 2};

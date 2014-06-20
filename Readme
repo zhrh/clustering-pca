@@ -36,5 +36,6 @@ v(d,n)表示d*n的矩阵, 在一维数组v存储规则是每d维存一段,一共
 2014年6月19日
 1. 加入文章Iterative Quantization: A Procrustean Approach to Learning Binary Codes for Large-scale Image Retrieval中ITQ方法
 此方法是在生成二进制特征之前对用PCA降维之后的特征进行旋转.
+2. 加入PCATransform::CreateFromVlad, 对库中vlad特征提取pca矩阵
 
 

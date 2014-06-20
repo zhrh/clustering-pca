@@ -8,6 +8,7 @@
 #include<algorithm>
 #include"dictionary.h"
 #include"global.h"
+#include"utils.h"
 
 
 bool PCATransform::Create(const char *dir,int dim,int points,float *&pca_mean,float *&pca_proj)
@@ -71,6 +72,74 @@ bool PCATransform::Create(const char *dir,int dim,int points,float *&pca_mean,fl
 	return true;
 
 }
+
+bool PCATransform::CreateFromVlad(const char *dir, int dim, float *&pca_mean,float *&pca_proj)
+{
+	struct timeval start,end;
+	int time_used;
+	gettimeofday(&start,NULL);
+	printf("randomizing file list...\n");
+	std::vector<int> fileid;
+	//const int kVladFileNum = 50000000;
+	const int kVladFileNum = 1000000;
+	const int kInitId = 5000000;
+	for(int i = kInitId; i != kVladFileNum; ++i)
+		fileid.push_back(i);
+	random_shuffle(fileid.begin(),fileid.end());
+	if(fileid.size() > kMaxFileNum)
+	{
+		printf("Reach the max file number...\n");
+		fileid.erase(fileid.begin() + kMaxFileNum, fileid.end());
+	}
+	gettimeofday(&end,NULL);
+	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
+	printf("elapsed: %d ms\n",time_used);
+
+	printf("Load vlad file...\n");
+	gettimeofday(&start,NULL);
+	int split_num = 100000;
+	char filepath[1024];
+	float *desc;
+	int *frameid = NULL;
+	int desc_num = 0, subset_num = 0;
+	float *subset_desc = new float[kMaxFileNum * dim](); 	
+	if(subset_desc == NULL)
+	{
+		fprintf(stderr, "Can't apply such memory!\n");
+		return false;
+	}
+	for(std::vector<int>::const_iterator iter = fileid.begin(); iter != fileid.end(); ++iter)
+	{
+		int id = *iter;
+		int subdirnum = ( id / split_num + 1) * split_num;
+		memset(filepath, 0, 1024);
+		sprintf(filepath,"%s/%d/%d.vlad", dir, subdirnum, 1000000000 + id);
+		if(LoadVlad(filepath, desc_num, desc, frameid) < 0)
+		{
+			printf("Can't load vlad descriptor from %s\n",filepath);
+			continue;
+		}
+		memcpy(subset_desc + subset_num * dim, desc, dim * sizeof(float));
+		++subset_num;
+		free(desc);
+	}
+	gettimeofday(&end,NULL);
+	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
+	printf("elapsed: %d ms\n",time_used);
+
+	printf("calculating pca matrix...\n");
+	gettimeofday(&start,NULL);
+	pca_mean = new float[dim]();
+	pca_proj = new float[dim * dim]();
+	PerformPCA(dim,subset_desc,subset_num,pca_mean,pca_proj);
+	gettimeofday(&end,NULL);
+	time_used = (1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec) / 1000;
+	printf("elapsed: %d ms\n",time_used);
+	delete []subset_desc;
+	//free(subset_desc);	// for test
+	return true;
+}
+
 
 bool PCATransform::CreateFromFvecs(const char *fname,int dim,int points,float *&pca_mean,float *&pca_proj)
 {
