@@ -159,6 +159,65 @@ int LoadVlad(const char *filename,int &kfNum,float *&features,int *&frameid_out)
 	return 0;
 }
 
+bool LoadVideoPcaVlad(const char *filename, int &framenum_out, float *&features_out, unsigned int *&frameid_out)
+{
+	FILE* fin = fopen(filename,"rb");
+	if(fin == NULL)
+	{
+		printf("Can't Open file %s\n",filename);
+		return false;
+	}
+	float version = 0.0;
+	int featype = 0, dim = 0, framenum = 0;
+	fread(&version,sizeof(float),1,fin);
+	fread(&featype,sizeof(int),1,fin);
+	fread(&dim,sizeof(int),1,fin);
+	if(featype != 10 || dim != kPcaVladDim)
+	{
+		printf("This File is't pcavlad features file or the dim is't right!\n");
+		fclose(fin);
+		return false;
+	}
+	int count = fread(&framenum,sizeof(int),1,fin);
+	if (count != 1)
+	{
+		printf("Read smpfile %s error:count = %d, framenum = %d\n",filename,count,framenum);
+		fclose(fin);
+		return false;
+	}
+	if(framenum == 0)
+	{
+		framenum_out = framenum;
+		return true;
+	}
+	unsigned int *frameid = (unsigned int *)calloc(framenum, sizeof(unsigned int));
+	float *features = (float *)calloc(framenum * dim, sizeof(float));
+	if (features == NULL ||  frameid == NULL)
+	{
+		printf("failed to allocate memory for feature\n");
+		fclose(fin);
+		return false;
+	}
+	for(int i = 0; i != framenum; ++i)
+	{
+		fread(frameid + i, sizeof(unsigned int), 1, fin);
+		count = fread(features + i * dim, sizeof(float), dim ,fin);
+		if(count != dim)
+		{
+			printf("Read smpfile %s length error:count = %d, framenum = %d\n",filename,count,framenum);
+			free(features);
+			free(frameid);
+			fclose(fin);
+			return false;
+		}
+	}
+	fclose(fin);
+	framenum_out = framenum;
+	features_out = features;
+	frameid_out = frameid;
+	return true;
+}
+
 bool LoadBatchPcaVlad(const char *filename, int &filenum_out, float *&features_out, unsigned int *&fileid_out)
 {
 	FILE* fin = fopen(filename,"rb");

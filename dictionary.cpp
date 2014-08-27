@@ -98,7 +98,7 @@ bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int di
 		return false;
 	}
 	//float *subf= new float[filepath.size() * kMaxSurfDescriptorNUM * dim](); 	
-	int subp = 0;
+	unsigned int subp = 0;
 	float *desc;
 	int desc_num = 0;
 	unsigned int *frameid = NULL;
@@ -108,7 +108,8 @@ bool Dictionary::DetermineSubset(const std::vector<std::string> &filepath,int di
 		//if(!LoadSiftgeo((*iter).c_str(),desc,desc_num))
 		//if(LoadSurfBin((*iter).c_str(),&desc_num,&desc) < 0)
 		//if(LoadVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
-		if(LoadBatchPcaVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
+		//if(LoadBatchPcaVlad((*iter).c_str(), desc_num, desc, frameid) < 0)
+		if(!LoadVideoPcaVlad((*iter).c_str(), desc_num, desc, frameid))
 		{
 			printf("Can't load surf descriptor from %s\n",(*iter).c_str());
 			delete []subset;

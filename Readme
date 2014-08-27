@@ -17,6 +17,7 @@ eg:
 pca和提取中心示例如main.cpp所示
 提取二进制旋转矩阵
 ./predata ./data/image_pcavlad ./result/pca_rotation_256_image.fvecs
+./predata ./data/video_pcavlad ./result/pca_rotation_256_video.fvecs
 
 注:
 (1) pca_surfvlad_k64_pn_image是在image1盘中随机选10万幅图片,且经过power-normalization处理, 生成pca的矩阵
@@ -37,5 +38,13 @@ v(d,n)表示d*n的矩阵, 在一维数组v存储规则是每d维存一段,一共
 1. 加入文章Iterative Quantization: A Procrustean Approach to Learning Binary Codes for Large-scale Image Retrieval中ITQ方法
 此方法是在生成二进制特征之前对用PCA降维之后的特征进行旋转.
 2. 加入PCATransform::CreateFromVlad, 对库中vlad特征提取pca矩阵
+
+2014年8月24日
+1. 加入提取video_pcavlad的rotation(ITQ)矩阵
+
+2014年8月26日
+1. bug fix: 当视频特征的framenumm == 0时
+2. bug fix: 申请的空间大于signed int最大值时, int subp = 0;改成unsigned int subp=0;
+
 
 
